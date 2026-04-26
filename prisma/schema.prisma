@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String   @unique
+  zipCode   String
+  birthDate String
+  createdAt DateTime @default(now())
+
+  userStores      UserStore[]
+  userRestaurants UserRestaurant[]
+}
+
+model Store {
+  id     Int    @id @default(autoincrement())
+  name   String
+  icon   String
+  color  String
+  points Int    @default(10)
+  tier   String @default("Bronze")
+
+  userStores UserStore[]
+  offers     StoreOffer[]
+}
+
+model Restaurant {
+  id          Int    @id @default(autoincrement())
+  name        String
+  icon        String
+  color       String
+  cuisine     String
+  points      Int    @default(10)
+  tier        String @default("Bronze")
+  managerCode String @default("")
+
+  userRestaurants UserRestaurant[]
+  offers          RestaurantOffer[]
+}
+
+model UserStore {
+  userId  Int
+  storeId Int
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, storeId])
+}
+
+model UserRestaurant {
+  userId       Int
+  restaurantId Int
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@id([userId, restaurantId])
+}
+
+model StoreOffer {
+  id          Int    @id @default(autoincrement())
+  storeId     Int
+  title       String
+  description String
+  discount    String
+  expiry      String
+  category    String
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model RestaurantOffer {
+  id           Int    @id @default(autoincrement())
+  restaurantId Int
+  title        String
+  description  String
+  discount     String
+  expiry       String
+  category     String
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+}

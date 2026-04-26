@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loyalty Platform Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-50 font-sans">
+
+  <!-- ── NAV ── -->
+  <nav id="nav" class="hidden bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+    <span id="nav-title" class="font-semibold text-gray-800 text-sm"></span>
+    <button onclick="logout()" class="text-xs text-gray-400 hover:text-red-500 transition-colors">Sign out</button>
+  </nav>
+
+  <div class="max-w-2xl mx-auto px-4 py-10">
+
+    <!-- ══ SCREEN: HOME ══ -->
+    <div id="screen-home">
+      <div class="text-center mb-10">
+        <h1 class="text-3xl font-bold text-gray-900">Loyalty Platform</h1>
+        <p class="mt-2 text-gray-500 text-sm">Sign in to manage restaurants or offers.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <button onclick="show('screen-admin-login')"
+          class="bg-white border border-gray-200 rounded-xl p-8 text-center shadow-sm hover:border-indigo-400 hover:shadow-md transition-all group">
+          <div class="text-4xl mb-3">🏢</div>
+          <div class="font-semibold text-gray-900 group-hover:text-indigo-600">Admin</div>
+          <div class="text-xs text-gray-400 mt-1">Add & remove restaurants</div>
+        </button>
+        <button onclick="show('screen-manager-login')"
+          class="bg-white border border-gray-200 rounded-xl p-8 text-center shadow-sm hover:border-indigo-400 hover:shadow-md transition-all group">
+          <div class="text-4xl mb-3">🍽️</div>
+          <div class="font-semibold text-gray-900 group-hover:text-indigo-600">Restaurant Manager</div>
+          <div class="text-xs text-gray-400 mt-1">Manage your offers</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: ADMIN LOGIN ══ -->
+    <div id="screen-admin-login" class="hidden">
+      <button onclick="show('screen-home')" class="text-sm text-gray-400 hover:text-gray-600 mb-6 flex items-center gap-1">← Back</button>
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 max-w-sm mx-auto">
+        <h2 class="text-xl font-bold text-gray-900 mb-1">Admin Login</h2>
+        <p class="text-sm text-gray-400 mb-6">Enter your admin password to continue.</p>
+        <form onsubmit="adminLogin(event)" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input id="admin-password" type="password" required placeholder="••••••••"
+              class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+          <div id="admin-login-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2"></div>
+          <button type="submit" id="admin-login-btn"
+            class="w-full h-9 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50">
+            Sign In
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: ADMIN DASHBOARD ══ -->
+    <div id="screen-admin-dashboard" class="hidden space-y-8">
+
+      <!-- Add Restaurant -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <h2 class="font-semibold text-gray-900 mb-4">Add Restaurant</h2>
+        <form onsubmit="addRestaurant(event)" class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Restaurant Name</label>
+              <input id="r-name" type="text" required placeholder="e.g. The Golden Fork"
+                class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Cuisine</label>
+              <select id="r-cuisine" required class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="" disabled selected>Select</option>
+                <option>American</option><option>Chinese</option><option>French</option>
+                <option>Greek</option><option>Indian</option><option>Italian</option>
+                <option>Japanese</option><option>Korean</option><option>Mediterranean</option>
+                <option>Mexican</option><option>Middle Eastern</option><option>Thai</option>
+                <option>Vietnamese</option><option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Icon (emoji)</label>
+              <input id="r-icon" type="text" required placeholder="🍕" maxlength="4"
+                class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+              <select id="r-color" required class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="" disabled selected>Select</option>
+                <option value="red">Red</option><option value="orange">Orange</option>
+                <option value="yellow">Yellow</option><option value="green">Green</option>
+                <option value="teal">Teal</option><option value="blue">Blue</option>
+                <option value="indigo">Indigo</option><option value="purple">Purple</option>
+                <option value="pink">Pink</option><option value="brown">Brown</option>
+                <option value="gray">Gray</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Points / Visit</label>
+              <input id="r-points" type="number" value="10" min="1" max="100"
+                class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tier</label>
+              <select id="r-tier" class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option>Bronze</option><option>Silver</option><option>Gold</option>
+              </select>
+            </div>
+            <div class="col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Manager Code
+                <span class="text-xs text-gray-400 font-normal ml-1">— share this with the restaurant manager</span>
+              </label>
+              <input id="r-manager-code" type="text" required placeholder="e.g. FORKS2024"
+                class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+          </div>
+          <div id="add-restaurant-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2"></div>
+          <div id="add-restaurant-success" class="hidden text-sm text-green-700 bg-green-50 border border-green-200 rounded p-2"></div>
+          <button type="submit" id="add-restaurant-btn"
+            class="w-full h-9 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50">
+            Add Restaurant
+          </button>
+        </form>
+      </div>
+
+      <!-- Restaurant List -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <h2 class="font-semibold text-gray-900 mb-4">All Restaurants</h2>
+        <div id="restaurant-list" class="space-y-2"></div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: MANAGER LOGIN ══ -->
+    <div id="screen-manager-login" class="hidden">
+      <button onclick="show('screen-home')" class="text-sm text-gray-400 hover:text-gray-600 mb-6 flex items-center gap-1">← Back</button>
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 max-w-sm mx-auto">
+        <h2 class="text-xl font-bold text-gray-900 mb-1">Manager Login</h2>
+        <p class="text-sm text-gray-400 mb-6">Enter your restaurant ID and manager code.</p>
+        <form onsubmit="managerLogin(event)" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Restaurant ID</label>
+            <input id="m-restaurant-id" type="number" required placeholder="e.g. 3"
+              class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Manager Code</label>
+            <input id="m-manager-code" type="text" required placeholder="Your manager code"
+              class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+          <div id="manager-login-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2"></div>
+          <button type="submit" id="manager-login-btn"
+            class="w-full h-9 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50">
+            Sign In
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: MANAGER DASHBOARD ══ -->
+    <div id="screen-manager-dashboard" class="hidden space-y-6">
+
+      <!-- Offer limit banner -->
+      <div id="offer-limit-banner" class="hidden bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-800">
+        ⚠️ You've reached the 2-offer limit. Delete an existing offer to add a new one.
+      </div>
+
+      <!-- Current Offers -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-semibold text-gray-900">Active Offers</h2>
+          <span id="offer-count-badge" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">0 / 2</span>
+        </div>
+        <div id="offer-list" class="space-y-3"></div>
+        <p id="offer-empty" class="text-sm text-gray-400 hidden">No offers yet. Add one below.</p>
+      </div>
+
+      <!-- Add Offer -->
+      <div id="add-offer-section" class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <h2 class="font-semibold text-gray-900 mb-4">Add New Offer</h2>
+        <form onsubmit="addOffer(event)" class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+              <input id="o-title" type="text" required placeholder="e.g. Happy Hour"
+                class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div class="col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <input id="o-description" type="text" required placeholder="e.g. 20% off all mains"
+                class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Discount</label>
+              <input id="o-discount" type="text" required placeholder="e.g. 20% off"
+                class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+              <input id="o-expiry" type="date" required
+                class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div class="col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <select id="o-category" required class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="" disabled selected>Select</option>
+                <option>Dining</option><option>Drinks</option><option>Desserts</option>
+                <option>Takeaway</option><option>Events</option><option>Seasonal</option>
+              </select>
+            </div>
+          </div>
+          <div id="add-offer-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2"></div>
+          <button type="submit" id="add-offer-btn"
+            class="w-full h-9 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50">
+            Add Offer
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+
+<script>
+  // ── State ──
+  const state = {
+    adminPassword: null,
+    manager: null,   // { restaurantId, managerCode, restaurantName }
+  };
+
+  // ── Screen switcher ──
+  const screens = ['screen-home','screen-admin-login','screen-admin-dashboard','screen-manager-login','screen-manager-dashboard'];
+  function show(id) {
+    screens.forEach(s => document.getElementById(s).classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+    const nav = document.getElementById('nav');
+    if (id === 'screen-home') { nav.classList.add('hidden'); return; }
+    nav.classList.remove('hidden');
+    const titles = {
+      'screen-admin-login': 'Admin Login',
+      'screen-admin-dashboard': '🏢 Admin Dashboard',
+      'screen-manager-login': 'Manager Login',
+      'screen-manager-dashboard': '🍽️ Manager Dashboard',
+    };
+    document.getElementById('nav-title').textContent = titles[id] || '';
+  }
+
+  function logout() {
+    state.adminPassword = null;
+    state.manager = null;
+    show('screen-home');
+  }
+
+  // ── Helpers ──
+  function setBtn(id, loading, label) {
+    const btn = document.getElementById(id);
+    btn.disabled = loading;
+    btn.textContent = loading ? 'Please wait…' : label;
+  }
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+  function hideMsg(id) { document.getElementById(id).classList.add('hidden'); }
+
+  // ── Admin Login ──
+  async function adminLogin(e) {
+    e.preventDefault();
+    hideMsg('admin-login-error');
+    setBtn('admin-login-btn', true, 'Sign In');
+    const password = document.getElementById('admin-password').value;
+    const res = await fetch('/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+    const data = await res.json();
+    setBtn('admin-login-btn', false, 'Sign In');
+    if (data.success) {
+      state.adminPassword = password;
+      show('screen-admin-dashboard');
+      loadRestaurants();
+    } else {
+      showError('admin-login-error', data.message);
+    }
+  }
+
+  // ── Load Restaurants ──
+  async function loadRestaurants() {
+    const res = await fetch('/restaurants');
+    const data = await res.json();
+    const list = document.getElementById('restaurant-list');
+    if (!data.restaurants.length) {
+      list.innerHTML = '<p class="text-sm text-gray-400">No restaurants yet.</p>';
+      return;
+    }
+    list.innerHTML = data.restaurants.map(r => `
+      <div class="flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-gray-50">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">${r.Icon}</span>
+          <div>
+            <div class="text-sm font-medium text-gray-900">${r.Name}</div>
+            <div class="text-xs text-gray-400">${r.Cuisine} · ${r.Points} pts · ${r.Tier} · ID: ${r.Id}</div>
+          </div>
+        </div>
+        <button onclick="deleteRestaurant(${r.Id}, '${r.Name}')"
+          class="text-xs text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-2 py-1 rounded transition-colors">
+          Delete
+        </button>
+      </div>
+    `).join('');
+  }
+
+  // ── Add Restaurant ──
+  async function addRestaurant(e) {
+    e.preventDefault();
+    hideMsg('add-restaurant-error');
+    hideMsg('add-restaurant-success');
+    setBtn('add-restaurant-btn', true, 'Add Restaurant');
+
+    const payload = {
+      name:        document.getElementById('r-name').value.trim(),
+      cuisine:     document.getElementById('r-cuisine').value,
+      icon:        document.getElementById('r-icon').value.trim(),
+      color:       document.getElementById('r-color').value,
+      points:      document.getElementById('r-points').value,
+      tier:        document.getElementById('r-tier').value,
+      managerCode: document.getElementById('r-manager-code').value.trim(),
+    };
+
+    const res = await fetch('/restaurants', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-password': state.adminPassword },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    setBtn('add-restaurant-btn', false, 'Add Restaurant');
+
+    if (data.success) {
+      const r = data.restaurant;
+      const s = document.getElementById('add-restaurant-success');
+      s.textContent = `✓ ${r.Icon} ${r.Name} added (ID: ${r.Id}). Manager code: ${payload.managerCode}`;
+      s.classList.remove('hidden');
+      e.target.reset();
+      loadRestaurants();
+    } else {
+      showError('add-restaurant-error', data.message);
+    }
+  }
+
+  // ── Delete Restaurant ──
+  async function deleteRestaurant(id, name) {
+    if (!confirm(`Delete "${name}"? This will also remove all its offers and customer subscriptions.`)) return;
+    const res = await fetch(`/restaurants/${id}`, {
+      method: 'DELETE',
+      headers: { 'x-admin-password': state.adminPassword },
+    });
+    const data = await res.json();
+    if (data.success) loadRestaurants();
+    else alert(data.message);
+  }
+
+  // ── Manager Login ──
+  async function managerLogin(e) {
+    e.preventDefault();
+    hideMsg('manager-login-error');
+    setBtn('manager-login-btn', true, 'Sign In');
+    const restaurantId = document.getElementById('m-restaurant-id').value;
+    const managerCode  = document.getElementById('m-manager-code').value;
+
+    const res = await fetch('/manager/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ restaurantId: parseInt(restaurantId), managerCode }),
+    });
+    const data = await res.json();
+    setBtn('manager-login-btn', false, 'Sign In');
+
+    if (data.success) {
+      state.manager = { restaurantId: parseInt(restaurantId), managerCode, restaurantName: data.restaurant.name };
+      document.getElementById('nav-title').textContent = `🍽️ ${data.restaurant.icon || ''} ${data.restaurant.name}`;
+      show('screen-manager-dashboard');
+      renderOffers(data.offers);
+    } else {
+      showError('manager-login-error', data.message);
+    }
+  }
+
+  // ── Render Offers ──
+  function renderOffers(offers) {
+    const list   = document.getElementById('offer-list');
+    const empty  = document.getElementById('offer-empty');
+    const badge  = document.getElementById('offer-count-badge');
+    const banner = document.getElementById('offer-limit-banner');
+    const addSection = document.getElementById('add-offer-section');
+
+    badge.textContent = `${offers.length} / 2`;
+    const atLimit = offers.length >= 2;
+    banner.classList.toggle('hidden', !atLimit);
+    addSection.classList.toggle('opacity-50', atLimit);
+    addSection.classList.toggle('pointer-events-none', atLimit);
+
+    if (!offers.length) {
+      list.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+
+    empty.classList.add('hidden');
+    list.innerHTML = offers.map(o => `
+      <div class="flex items-start justify-between p-3 rounded-lg border border-gray-100 bg-gray-50 gap-3">
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium text-gray-900">${o.title}</div>
+          <div class="text-xs text-gray-500 mt-0.5">${o.description}</div>
+          <div class="flex gap-2 mt-1">
+            <span class="text-xs bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded">${o.discount}</span>
+            <span class="text-xs text-gray-400">Expires ${o.expiry}</span>
+            <span class="text-xs text-gray-400">${o.category}</span>
+          </div>
+        </div>
+        <button onclick="deleteOffer(${o.id})"
+          class="text-xs text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-2 py-1 rounded transition-colors shrink-0">
+          Delete
+        </button>
+      </div>
+    `).join('');
+  }
+
+  // ── Add Offer ──
+  async function addOffer(e) {
+    e.preventDefault();
+    hideMsg('add-offer-error');
+    setBtn('add-offer-btn', true, 'Add Offer');
+
+    const payload = {
+      title:       document.getElementById('o-title').value.trim(),
+      description: document.getElementById('o-description').value.trim(),
+      discount:    document.getElementById('o-discount').value.trim(),
+      expiry:      document.getElementById('o-expiry').value,
+      category:    document.getElementById('o-category').value,
+    };
+
+    const res = await fetch('/manager/offers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-restaurant-id': state.manager.restaurantId,
+        'x-manager-code':  state.manager.managerCode,
+      },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    setBtn('add-offer-btn', false, 'Add Offer');
+
+    if (data.success) {
+      e.target.reset();
+      refreshOffers();
+    } else {
+      showError('add-offer-error', data.message);
+    }
+  }
+
+  // ── Delete Offer ──
+  async function deleteOffer(id) {
+    if (!confirm('Delete this offer?')) return;
+    const res = await fetch(`/manager/offers/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'x-restaurant-id': state.manager.restaurantId,
+        'x-manager-code':  state.manager.managerCode,
+      },
+    });
+    const data = await res.json();
+    if (data.success) refreshOffers();
+    else alert(data.message);
+  }
+
+  // ── Refresh Offers ──
+  async function refreshOffers() {
+    const res = await fetch('/manager/offers', {
+      headers: {
+        'x-restaurant-id': state.manager.restaurantId,
+        'x-manager-code':  state.manager.managerCode,
+      },
+    });
+    const data = await res.json();
+    renderOffers(data.offers);
+  }
+</script>
+</body>
+</html>
