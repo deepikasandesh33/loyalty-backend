@@ -73,7 +73,7 @@ router.post("/manager/offers", requireManager, async (req, res) => {
 // DELETE /manager/offers/:id — delete one of the manager's offers
 router.delete("/manager/offers/:id", requireManager, async (req, res) => {
   const restaurant = (req as any).restaurant;
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id as string);
 
   const offer = await prisma.restaurantOffer.findUnique({ where: { id } });
   if (!offer || offer.restaurantId !== restaurant.id) {

@@ -18,7 +18,7 @@ router.post("/admin/login", (req, res) => {
 
 // DELETE /restaurants/:id — admin only
 router.delete("/restaurants/:id", requireAdmin, async (req, res) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id as string);
   if (isNaN(id)) {
     res.json({ success: false, message: "Invalid ID." });
     return;

@@ -6,6 +6,7 @@ import restaurantRoutes from "./routes/restaurants";
 import offerRoutes from "./routes/offers";
 import adminRoutes from "./routes/admin";
 import managerRoutes from "./routes/manager";
+import redeemRoutes from "./routes/redeem";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -19,6 +20,7 @@ app.use(restaurantRoutes);
 app.use(offerRoutes);
 app.use(adminRoutes);
 app.use(managerRoutes);
+app.use(redeemRoutes);
 
 app.listen(PORT, () => {
   console.log(`Loyalty backend running on http://localhost:${PORT}`);
