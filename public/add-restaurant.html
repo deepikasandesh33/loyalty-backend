@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Loyalty Platform Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </head>
 <body class="min-h-screen bg-gray-50 font-sans">
 
@@ -164,6 +165,74 @@
     <!-- ══ SCREEN: MANAGER DASHBOARD ══ -->
     <div id="screen-manager-dashboard" class="hidden space-y-6">
 
+      <!-- ── SCAN QR PANEL ── -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <h2 class="font-semibold text-gray-900 mb-4">📷 Scan Customer QR</h2>
+
+        <!-- Mode tabs -->
+        <div class="flex gap-2 mb-5">
+          <button id="tab-points" onclick="setScanMode('points')"
+            class="flex-1 h-9 text-sm font-medium rounded-lg bg-indigo-600 text-white transition-colors">
+            🏅 Award Points
+          </button>
+          <button id="tab-redeem" onclick="setScanMode('redeem')"
+            class="flex-1 h-9 text-sm font-medium rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+            🎁 Redeem Offer
+          </button>
+        </div>
+
+        <p id="scan-mode-hint" class="text-xs text-gray-400 mb-4">
+          Scan the customer's <strong>loyalty QR code</strong> to award visit points.
+        </p>
+
+        <!-- Camera area -->
+        <div class="relative mb-4">
+          <div id="camera-container" class="hidden rounded-xl overflow-hidden bg-black aspect-video relative">
+            <video id="camera-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
+            <canvas id="camera-canvas" class="hidden"></canvas>
+            <!-- Scanning overlay -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div class="w-48 h-48 border-2 border-white rounded-xl opacity-60"></div>
+            </div>
+            <div id="scan-status" class="absolute bottom-3 left-0 right-0 text-center text-xs text-white bg-black/40 py-1">
+              Scanning…
+            </div>
+          </div>
+
+          <!-- Camera off placeholder -->
+          <div id="camera-placeholder" class="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 aspect-video flex flex-col items-center justify-center gap-3">
+            <div class="text-4xl">📷</div>
+            <p class="text-sm text-gray-500">Camera is off</p>
+          </div>
+        </div>
+
+        <!-- Camera toggle button -->
+        <button id="camera-toggle-btn" onclick="toggleCamera()"
+          class="w-full h-10 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors mb-4">
+          Start Camera
+        </button>
+
+        <!-- Divider -->
+        <div class="flex items-center gap-3 mb-4">
+          <div class="flex-1 h-px bg-gray-200"></div>
+          <span class="text-xs text-gray-400">or paste manually</span>
+          <div class="flex-1 h-px bg-gray-200"></div>
+        </div>
+
+        <!-- Manual paste -->
+        <div class="flex gap-2">
+          <input id="manual-qr-input" type="text" placeholder="Paste QR payload here…"
+            class="flex-1 h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono" />
+          <button onclick="submitManualQR()"
+            class="h-9 px-4 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors whitespace-nowrap">
+            Submit
+          </button>
+        </div>
+
+        <!-- Result -->
+        <div id="scan-result" class="hidden mt-4 p-4 rounded-xl border text-sm"></div>
+      </div>
+
       <!-- Offer limit banner -->
       <div id="offer-limit-banner" class="hidden bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-800">
         ⚠️ You've reached the 2-offer limit. Delete an existing offer to add a new one.
@@ -249,6 +318,7 @@
   }
 
   function logout() {
+    stopCamera();
     state.adminPassword = null;
     state.manager = null;
     show('screen-home');
@@ -477,6 +547,123 @@
     const data = await res.json();
     if (data.success) refreshOffers();
     else alert(data.message);
+  }
+
+  // ── Scan QR ──
+
+  let scanMode = 'points';   // 'points' | 'redeem'
+  let cameraStream = null;
+  let scanInterval = null;
+  let lastScanned = '';
+
+  function setScanMode(mode) {
+    scanMode = mode;
+    const isPoints = mode === 'points';
+    document.getElementById('tab-points').className =
+      `flex-1 h-9 text-sm font-medium rounded-lg transition-colors ${isPoints ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`;
+    document.getElementById('tab-redeem').className =
+      `flex-1 h-9 text-sm font-medium rounded-lg transition-colors ${!isPoints ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`;
+    document.getElementById('scan-mode-hint').innerHTML = isPoints
+      ? 'Scan the customer\'s <strong>loyalty QR code</strong> to award visit points.'
+      : 'Scan the customer\'s <strong>offer redemption QR code</strong> shown in the app.';
+    clearScanResult();
+    lastScanned = '';
+  }
+
+  async function toggleCamera() {
+    if (cameraStream) {
+      stopCamera();
+    } else {
+      await startCamera();
+    }
+  }
+
+  async function startCamera() {
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      const video = document.getElementById('camera-video');
+      video.srcObject = cameraStream;
+      document.getElementById('camera-container').classList.remove('hidden');
+      document.getElementById('camera-placeholder').classList.add('hidden');
+      document.getElementById('camera-toggle-btn').textContent = 'Stop Camera';
+      lastScanned = '';
+      scanInterval = setInterval(scanFrame, 250);
+    } catch (err) {
+      showScanResult(false, 'Camera access denied. Please use manual paste instead.');
+    }
+  }
+
+  function stopCamera() {
+    if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+    clearInterval(scanInterval); scanInterval = null;
+    document.getElementById('camera-container').classList.add('hidden');
+    document.getElementById('camera-placeholder').classList.remove('hidden');
+    document.getElementById('camera-toggle-btn').textContent = 'Start Camera';
+  }
+
+  function scanFrame() {
+    const video = document.getElementById('camera-video');
+    if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
+    const canvas = document.getElementById('camera-canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, imageData.width, imageData.height);
+    if (code && code.data && code.data !== lastScanned) {
+      lastScanned = code.data;
+      document.getElementById('scan-status').textContent = '✓ QR detected!';
+      submitQRPayload(code.data);
+    }
+  }
+
+  function submitManualQR() {
+    const val = document.getElementById('manual-qr-input').value.trim();
+    if (!val) return;
+    submitQRPayload(val);
+  }
+
+  async function submitQRPayload(payload) {
+    clearScanResult();
+    const endpoint = scanMode === 'points' ? '/scan' : '/redeem-offer';
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-restaurant-id': state.manager.restaurantId,
+          'x-manager-code':  state.manager.managerCode,
+        },
+        body: JSON.stringify({ qrPayload: payload }),
+      });
+      const data = await res.json();
+      showScanResult(data.success, data.message);
+      if (data.success) {
+        document.getElementById('manual-qr-input').value = '';
+        // Pause camera briefly so staff can read result
+        if (scanInterval) { clearInterval(scanInterval); setTimeout(() => { if (cameraStream) { lastScanned = ''; scanInterval = setInterval(scanFrame, 250); } }, 4000); }
+      }
+    } catch (err) {
+      showScanResult(false, 'Could not connect to server.');
+    }
+  }
+
+  function showScanResult(success, message) {
+    const el = document.getElementById('scan-result');
+    el.className = `mt-4 p-4 rounded-xl border text-sm flex items-start gap-3 ${
+      success
+        ? 'bg-green-50 border-green-200 text-green-800'
+        : 'bg-red-50 border-red-200 text-red-700'
+    }`;
+    el.innerHTML = `<span class="text-lg">${success ? '✅' : '❌'}</span><span>${message}</span>`;
+    el.classList.remove('hidden');
+  }
+
+  function clearScanResult() {
+    const el = document.getElementById('scan-result');
+    el.classList.add('hidden');
+    el.innerHTML = '';
   }
 
   // ── Refresh Offers ──
