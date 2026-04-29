@@ -49,8 +49,9 @@ model Restaurant {
 }
 
 model UserStore {
-  userId  Int
-  storeId Int
+  userId        Int
+  storeId       Int
+  pointsBalance Int @default(0)
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
@@ -59,8 +60,9 @@ model UserStore {
 }
 
 model UserRestaurant {
-  userId       Int
-  restaurantId Int
+  userId        Int
+  restaurantId  Int
+  pointsBalance Int @default(0)
 
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
