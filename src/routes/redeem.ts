@@ -138,6 +138,34 @@ router.post("/redeem-offer", requireManager, async (req: Request, res: Response)
   }
 });
 
+// ── GET /user-points  ─────────────────────────────────────────────────────────
+// Returns a user's accumulated points at a specific restaurant or store.
+// Query params: userId, restaurantId (optional), storeId (optional)
+
+router.get("/user-points", async (req: Request, res: Response) => {
+  const userId = parseInt(req.query.userId as string);
+  const restaurantId = req.query.restaurantId ? parseInt(req.query.restaurantId as string) : undefined;
+  const storeId = req.query.storeId ? parseInt(req.query.storeId as string) : undefined;
+
+  if (isNaN(userId)) {
+    return res.status(400).json({ success: false, message: "userId is required" });
+  }
+
+  try {
+    const where: any = { userId };
+    if (restaurantId !== undefined) where.restaurantId = restaurantId;
+    if (storeId !== undefined) where.storeId = storeId;
+
+    const logs = await prisma.visitLog.findMany({ where });
+    const accumulated = logs.reduce((sum, l) => sum + l.pointsAwarded, 0);
+    const visits = logs.length;
+
+    return res.json({ success: true, accumulated, visits });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 // ── GET /visit-history/:userId  ───────────────────────────────────────────────
 // Returns a user's visit history and total points earned.
 
