@@ -23,26 +23,34 @@ model User {
 }
 
 model Store {
-  id     Int    @id @default(autoincrement())
-  name   String
-  icon   String
-  color  String
-  points Int    @default(10)
-  tier   String @default("Bronze")
+  id           Int    @id @default(autoincrement())
+  name         String
+  icon         String
+  color        String
+  points       Int    @default(10)
+  tier         String @default("Bronze")
+  email        String @default("")
+  address      String @default("")
+  managerPhone String @default("")
+  referredBy   String @default("")
 
   userStores UserStore[]
   offers     StoreOffer[]
 }
 
 model Restaurant {
-  id          Int    @id @default(autoincrement())
-  name        String
-  icon        String
-  color       String
-  cuisine     String
-  points      Int    @default(10)
-  tier        String @default("Bronze")
-  managerCode String @default("")
+  id           Int    @id @default(autoincrement())
+  name         String
+  icon         String
+  color        String
+  cuisine      String
+  points       Int    @default(10)
+  tier         String @default("Bronze")
+  managerCode  String @default("")
+  email        String @default("")
+  address      String @default("")
+  managerPhone String @default("")
+  referredBy   String @default("")
 
   userRestaurants UserRestaurant[]
   offers          RestaurantOffer[]

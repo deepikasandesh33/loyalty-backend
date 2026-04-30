@@ -36,6 +36,12 @@
           <div class="font-semibold text-gray-900 group-hover:text-indigo-600">Restaurant Manager</div>
           <div class="text-xs text-gray-400 mt-1">Manage your offers</div>
         </button>
+        <button onclick="show('screen-register')"
+          class="col-span-2 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl p-6 text-center shadow-sm hover:border-indigo-400 hover:shadow-md transition-all group">
+          <div class="text-4xl mb-3">✨</div>
+          <div class="font-semibold text-gray-900 group-hover:text-indigo-600">Register Your Business</div>
+          <div class="text-xs text-gray-400 mt-1">Join the loyalty platform as a restaurant or store</div>
+        </button>
       </div>
     </div>
 
@@ -291,6 +297,97 @@
       </div>
     </div>
 
+    <!-- ══ SCREEN: SELF REGISTER ══ -->
+    <div id="screen-register" class="hidden">
+      <button onclick="show('screen-home')" class="text-sm text-gray-400 hover:text-gray-600 mb-6 flex items-center gap-1">← Back</button>
+
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Register Your Business</h2>
+        <p class="mt-1 text-sm text-gray-500">Join the loyalty platform in minutes. We'll give you a manager code to log in.</p>
+      </div>
+
+      <!-- Type tabs -->
+      <div class="flex gap-2 mb-6 bg-gray-100 p-1 rounded-xl">
+        <button id="reg-tab-restaurant" onclick="setRegType('restaurant')"
+          class="flex-1 h-9 text-sm font-medium rounded-lg bg-white text-indigo-600 shadow-sm transition-all">
+          🍽️ Restaurant
+        </button>
+        <button id="reg-tab-store" onclick="setRegType('store')"
+          class="flex-1 h-9 text-sm font-medium rounded-lg text-gray-500 hover:text-gray-700 transition-all">
+          🛍️ Store
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 max-w-lg mx-auto">
+        <form onsubmit="submitRegistration(event)" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              <span id="reg-name-label">Restaurant</span> Name <span class="text-red-500">*</span>
+            </label>
+            <input id="reg-name" type="text" required placeholder="e.g. The Golden Fork"
+              class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Business Email <span class="text-red-500">*</span></label>
+            <input id="reg-email" type="email" required placeholder="contact@yourbusiness.com"
+              class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Business Address <span class="text-red-500">*</span></label>
+            <input id="reg-address" type="text" required placeholder="123 Main St, City, State"
+              class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Manager Phone <span class="text-red-500">*</span></label>
+            <input id="reg-manager-phone" type="tel" required placeholder="e.g. 5551234567"
+              class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Referred By
+              <span class="text-xs text-gray-400 font-normal ml-1">— phone number of who referred you (optional)</span>
+            </label>
+            <input id="reg-referred-by" type="tel" placeholder="e.g. 5559876543"
+              class="w-full h-9 px-3 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <div id="reg-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded p-3"></div>
+
+          <!-- Success card -->
+          <div id="reg-success" class="hidden bg-green-50 border border-green-200 rounded-xl p-5 space-y-3">
+            <div class="flex items-center gap-2 text-green-700 font-semibold">
+              <span class="text-xl">🎉</span> Registration successful!
+            </div>
+            <p class="text-sm text-green-700">Your business has been added to the loyalty platform.</p>
+            <div class="bg-white border border-green-200 rounded-lg p-4 space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="text-gray-500">Business ID</span>
+                <span id="reg-result-id" class="font-mono font-semibold text-gray-900"></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-500">Manager Code</span>
+                <span id="reg-result-code" class="font-mono font-semibold text-indigo-600 text-base tracking-wide"></span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500">Save your Manager Code — you'll use it to log into the manager portal to manage offers and scan customer QR codes.</p>
+            <button type="button" onclick="resetRegistration()"
+              class="w-full h-9 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors">
+              Register Another Business
+            </button>
+          </div>
+
+          <button type="submit" id="reg-submit-btn"
+            class="w-full h-10 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50">
+            Register Business
+          </button>
+        </form>
+      </div>
+    </div>
+
   </div><!-- /container -->
 
 <script>
@@ -301,7 +398,7 @@
   };
 
   // ── Screen switcher ──
-  const screens = ['screen-home','screen-admin-login','screen-admin-dashboard','screen-manager-login','screen-manager-dashboard'];
+  const screens = ['screen-home','screen-admin-login','screen-admin-dashboard','screen-manager-login','screen-manager-dashboard','screen-register'];
   function show(id) {
     screens.forEach(s => document.getElementById(s).classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
@@ -313,6 +410,7 @@
       'screen-admin-dashboard': '🏢 Admin Dashboard',
       'screen-manager-login': 'Manager Login',
       'screen-manager-dashboard': '🍽️ Manager Dashboard',
+      'screen-register': '✨ Register Your Business',
     };
     document.getElementById('nav-title').textContent = titles[id] || '';
   }
@@ -676,6 +774,64 @@
     });
     const data = await res.json();
     renderOffers(data.offers);
+  }
+
+  // ── Self Registration ──
+  let regType = 'restaurant';
+
+  function setRegType(type) {
+    regType = type;
+    const isRest = type === 'restaurant';
+    document.getElementById('reg-tab-restaurant').className =
+      `flex-1 h-9 text-sm font-medium rounded-lg transition-all ${isRest ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`;
+    document.getElementById('reg-tab-store').className =
+      `flex-1 h-9 text-sm font-medium rounded-lg transition-all ${!isRest ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`;
+    document.getElementById('reg-name-label').textContent = isRest ? 'Restaurant' : 'Store';
+  }
+
+  async function submitRegistration(e) {
+    e.preventDefault();
+    hideMsg('reg-error');
+    document.getElementById('reg-success').classList.add('hidden');
+    setBtn('reg-submit-btn', true, 'Register Business');
+
+    const payload = {
+      name:         document.getElementById('reg-name').value.trim(),
+      email:        document.getElementById('reg-email').value.trim(),
+      address:      document.getElementById('reg-address').value.trim(),
+      managerPhone: document.getElementById('reg-manager-phone').value.trim(),
+      referredBy:   document.getElementById('reg-referred-by').value.trim(),
+    };
+
+    const endpoint = regType === 'restaurant' ? '/register/restaurant' : '/register/store';
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    setBtn('reg-submit-btn', false, 'Register Business');
+
+    if (data.success) {
+      document.getElementById('reg-result-id').textContent =
+        regType === 'restaurant' ? `Restaurant #${data.restaurantId}` : `Store #${data.storeId}`;
+      document.getElementById('reg-result-code').textContent = data.managerCode;
+      document.getElementById('reg-success').classList.remove('hidden');
+      document.getElementById('reg-submit-btn').classList.add('hidden');
+      e.target.querySelector('form') && e.target.reset?.();
+    } else {
+      showError('reg-error', data.message);
+    }
+  }
+
+  function resetRegistration() {
+    document.getElementById('reg-success').classList.add('hidden');
+    document.getElementById('reg-submit-btn').classList.remove('hidden');
+    document.getElementById('reg-name').value = '';
+    document.getElementById('reg-email').value = '';
+    document.getElementById('reg-address').value = '';
+    document.getElementById('reg-manager-phone').value = '';
+    document.getElementById('reg-referred-by').value = '';
   }
 </script>
 </body>
