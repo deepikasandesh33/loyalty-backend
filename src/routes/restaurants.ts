@@ -31,9 +31,9 @@ router.post("/restaurants", requireAdmin, async (req, res) => {
   res.json({ success: true, message: "Restaurant created.", restaurant: formatRestaurant(restaurant) });
 });
 
-// GET /restaurants — all restaurants
+// GET /restaurants — active restaurants only (shown to users for browsing/adding)
 router.get("/restaurants", async (_req, res) => {
-  const restaurants = await prisma.restaurant.findMany({ orderBy: { name: "asc" } });
+  const restaurants = await prisma.restaurant.findMany({ where: { active: true }, orderBy: { name: "asc" } });
   res.json({ success: true, restaurants: restaurants.map(formatRestaurant) });
 });
 
@@ -46,7 +46,7 @@ router.get("/user-restaurants", async (req, res) => {
   }
 
   const rows = await prisma.userRestaurant.findMany({
-    where: { userId },
+    where: { userId, restaurant: { active: true } },
     include: { restaurant: true },
   });
 

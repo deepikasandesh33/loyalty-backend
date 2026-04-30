@@ -7,9 +7,9 @@ function formatStore(s: { id: number; name: string; icon: string; color: string;
   return { Id: s.id, Name: s.name, Icon: s.icon, Color: s.color, Points: s.points, Tier: s.tier };
 }
 
-// GET /stores — all stores
+// GET /stores — active stores only (shown to users for browsing/adding)
 router.get("/stores", async (_req, res) => {
-  const stores = await prisma.store.findMany({ orderBy: { name: "asc" } });
+  const stores = await prisma.store.findMany({ where: { active: true }, orderBy: { name: "asc" } });
   res.json({ success: true, stores: stores.map(formatStore) });
 });
 
@@ -22,7 +22,7 @@ router.get("/user-stores", async (req, res) => {
   }
 
   const rows = await prisma.userStore.findMany({
-    where: { userId },
+    where: { userId, store: { active: true } },
     include: { store: true },
   });
 
